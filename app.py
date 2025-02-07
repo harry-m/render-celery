@@ -1,6 +1,6 @@
 import os
 from flask import Flask, flash, render_template, redirect, request
-from tasks import add
+from tasks import add, subtract
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', "super-secret")
