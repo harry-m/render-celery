@@ -10,3 +10,8 @@ logger = get_task_logger(__name__)
 def add(x, y):
     logger.info(f'Adding {x} + {y}')
     return x + y
+
+@app.task
+def subtract(x, y):
+    logger.info(f'Subtracting {x} - {y}')
+    return x - y
