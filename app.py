@@ -18,3 +18,11 @@ def add_inputs():
     add.delay(x, y)
     flash("Your addition job has been submitted.")
     return redirect('/')
+
+@app.route('/subtract', methods=['POST'])
+def add_inputs():
+    x = int(request.form['x'] or 0)
+    y = int(request.form['y'] or 0)
+    subtract.delay(x, y)
+    flash("Your addition job has been submitted.")
+    return redirect('/')
