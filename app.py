@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, request
 from sqlalchemy import create_engine, Table, Column, String, MetaData, UUID, func, DateTime
 from sqlalchemy.dialects.postgresql import JSONB
-import uuid
+from flask_httpauth import HTTPBasicAuth
 
 import tasks
 from app_utils import *
@@ -14,6 +14,7 @@ from models import TaskCache
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', "sep897rugb04w57bg40957gb9pergbouerdbv.lxcnv,kdjfbgoeri6yutbgodznyujxikcisgrfbgdsvabolisj")
+auth = HTTPBasicAuth()
 
 # Configure database connection
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
@@ -22,8 +23,22 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize the database with the app
 db.init_app(app)
 
+# Simulated user database
+users = {
+    "admin": os.getenv('ADMIN_PASSWORD'),
+}
+
+
+@auth.verify_password
+def verify_password(username, password):
+    """Verify username and password."""
+    if username in users and users[username] == password:
+        return username  # Authenticated user
+    return None  # Authentication failed
+
 
 @app.route('/')
+@auth.login_required
 def main():
     available_tasks = []
 
@@ -47,6 +62,7 @@ def main():
 
 
 @app.route('/task/<name>', methods=['POST'])
+@auth.login_required
 def run_task(name):
     # Get a format if one was specified, or default to HTML
     format = request.form.get('format')

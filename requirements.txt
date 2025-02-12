@@ -17,3 +17,4 @@ flask-sqlalchemy
 psycopg2
 requests
 beautifulsoup4
+flask-httpauth
