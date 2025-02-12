@@ -20,11 +20,6 @@
 
                         <h4 class="mt-4">Or call me:</h4>
                         <p>
-                            <b>URL</b>
-                            <input type="text" class="form-control w-100" style="font-family: monospace;" value="{{ task.url_path }}{{ task.url_params.querystr }}">
-                        </p>
-
-                        <p>
                             <b>curl</b>
                             <input type="text" class="form-control w-100" style="font-family: monospace;" value="curl '{{ task.url_path }}' --data-raw '{{task.url_params.querystr}}'" onclick="this.select()"></input>
                         </p>
