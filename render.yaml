@@ -9,7 +9,7 @@ services:
     envVars:
       - key: CELERY_BROKER_URL
         fromService:
-          name: celery-redis
+          name: redis
           type: redis
           property: connectionString
           
@@ -23,7 +23,7 @@ services:
     envVars:
       - key: CELERY_BROKER_URL
         fromService:
-          name: celery-redis
+          name: redis
           type: redis
           property: connectionString
 
@@ -39,7 +39,7 @@ services:
       - key: CELERY_BROKER_URL
         fromService:
           type: redis
-          name: celery-redis
+          name: redis
           property: connectionString
 
   - type: redis
