@@ -105,7 +105,7 @@ def run_task(name):
     # Enqueue or run the task, as directed
     try:
         if action == "Enqueue":
-            queued_task = celery.send_task(name, kwargs=params)
+            queued_task = celery.send_task(f"tasks.{name}.{name}", kwargs=params)
 
             # Add task id to the task_cache table
             new_task = TaskCache(task_id=queued_task.id, task_name=name, parameters=params)
