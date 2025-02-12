@@ -3,6 +3,7 @@ services:
     name: soom-worker
     region: frankfurt
     runtime: python
+    plan: starter
     buildCommand: "pip install -r requirements.txt"
     startCommand: "celery -A celery_config worker --loglevel info --concurrency 4"
     autoDeploy: false
@@ -15,6 +16,7 @@ services:
           
   - type: web
     name: soom
+    plan: starter
     region: frankfurt
     runtime: python
     buildCommand: "pip install -r requirements.txt"
