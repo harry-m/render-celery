@@ -112,44 +112,6 @@ def run_task(name):
             db.session.add(new_task)
             db.session.commit()
 
-            # # Create an engine and connect to the PostgreSQL database
-            # engine = create_engine(os.getenv('DATABASE_URL'))
-            # connection = engine.connect()
-            # metadata = MetaData()
-
-            # # Define the task_cache table
-            # task_cache = Table('task_cache', metadata,
-            #        Column('id', UUID(as_uuid=True), primary_key=True),
-            #        Column('submitted_at', DateTime(timezone=True)),
-            #        Column('finished_at', DateTime(timezone=True)),
-            #        Column('task_name', String),
-            #        Column('parameters', JSONB),
-            #        Column('result', String)
-            #     )
-
-            # # Insert the task id and other details into the task_cache table
-            # insert_query = task_cache.insert().values(
-            #     id=uuid.UUID(queued_task.id),
-            #     submitted_at=func.now(),
-            #     task_name=name,
-            #     parameters=params,
-            #     result=''
-            # )
-
-            # # Ensure the transaction is committed
-            # try:
-            #     trans = connection.begin()  # Start a transaction
-            #     connection.execute(insert_query)
-            #     trans.commit()  # Commit the transaction
-
-            # except Exception as e:
-            #     trans.rollback()  # Rollback if there's an error
-
-            #     return send_message(f"Unable to save task: {e}", format, "error")
-
-            # finally:
-            #     connection.close()  # Close connection
-
             return send_message("Your task has been enqueued", format, "info")
         
         else:
