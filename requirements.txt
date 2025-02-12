@@ -15,3 +15,5 @@ openai
 python-dotenv
 flask-sqlalchemy
 psycopg2
+requests
+beautifulsoup4
