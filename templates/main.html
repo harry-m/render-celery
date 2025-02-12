@@ -1,47 +1,86 @@
-<html>
-<head>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-          integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-</head>
-<body>
-<div class="container m-3">
-    <div class="row align-items-center justify-content-center">
-        <div class="col">
-            <h1 class="mb-5">Asynchronous addition using Celery!</h1>
-						<div class="row my-3">
-								{% with messages = get_flashed_messages() %}
-								{% if messages %}
-								{% for message in messages %}
-								<div class="alert alert-info">{{ message }}</div>
-								{% endfor %}
-								{% endif %}
-								{% endwith %}
-						</div>
-            <form action="/add" method="POST" class="form-inline">
-                <div class="form-group">
-                    <label for="x">X</label>
-                    <input id="x" class="form-control mx-3" type="number" name="x"/>
-                </div>
-                <div class="form-group mx-3">
-                    <label for="y">Y</label>
-                    <input id="y" class="form-control mx-3" type="number" name="y"/>
-                </div>
-                <button class="btn btn-primary" type="submit">Add X and Y</button>
-            </form>
+{% extends "base.html" %}
 
-	     <form action="/subtract" method="POST" class="form-inline">
-                <div class="form-group">
-                    <label for="x">X</label>
-                    <input id="x" class="form-control mx-3" type="number" name="x"/>
-                </div>
-                <div class="form-group mx-3">
-                    <label for="y">Y</label>
-                    <input id="y" class="form-control mx-3" type="number" name="y"/>
-                </div>
-                <button class="btn btn-primary" type="submit">Subtract X and Y</button>
-            </form>
+{% block content %}
+    <h3 class="mb-4">Available Functions</h3>
+    <div class="row">
+        <div class="col-3">
+            <div class="nav flex-column nav-pills" id="taskTab" role="tablist" aria-orientation="vertical">
+                {% for task in available_tasks %}
+                    <a class="nav-link h5" id="tab-{{ loop.index }}" href="#task-{{ loop.index }}" data-toggle="pill" data-bs-target="#task-{{ loop.index }}" role="tab" aria-controls="task-{{ loop.index }}" aria-selected="false">
+                        {{ task.title }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="tab-content" id="taskTabContent">
+                {% for task in available_tasks %}
+                    <div class="tab-pane fade {% if loop.first %}show active{% endif %}" id="task-{{ loop.index }}" role="tabpanel" aria-labelledby="tab-{{ loop.index }}">
+                        {{ task.template() | safe }}
+
+                        <h4 class="mt-4">Or call me:</h4>
+                        <p>
+                            <b>URL</b>
+                            <input type="text" class="form-control w-100" style="font-family: monospace;" value="{{ task.url_path }}{{ task.url_params.querystr }}">
+                        </p>
+
+                        <p>
+                            <b>curl</b>
+                            <input type="text" class="form-control w-100" style="font-family: monospace;" value="curl '{{ task.url_path }}' --data-raw '{{task.url_params.querystr}}'" onclick="this.select()"></input>
+                        </p>
+
+                        <p>
+                            <b>Python</b>
+                            <input type="text" class="form-control w-100" style="font-family: monospace;" value="response = requests.post('{{ task.url_path }}', data={{ task.url_params.json }})" onclick="this.select()">
+                        </p>
+                        
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
-</div>
-</body>
-</html>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the active tab from the cookie
+            var activeTab = getCookie('activeTab');
+            if (activeTab) {
+                var tabElement = document.querySelector('#' + activeTab);
+                if (tabElement) {
+                    var tab = new bootstrap.Tab(tabElement);
+                    tab.show();
+                }
+            }
+
+            // Add click event listener to all tabs
+            var tabs = document.querySelectorAll('#taskTab a ');
+            tabs.forEach(function(tab) {
+                tab.addEventListener('click', function(event) {
+                    // Set the active tab in the cookie
+                    setCookie('activeTab', event.target.id, 7);
+                });
+            });
+        });
+
+        function setCookie(name, value, days) {
+            var expires = "";
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        function getCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+    </script>
+{% endblock %}

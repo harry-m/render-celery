@@ -1,10 +1,10 @@
 services:
   - type: worker
-    name: celery-worker
-    region: ohio
+    name: soom-worker
+    region: frankfurt
     runtime: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "celery --app tasks worker --loglevel info --concurrency 4"
+    startCommand: "celery -A celery_config worker --loglevel info --concurrency 4"
     autoDeploy: false
     envVars:
       - key: CELERY_BROKER_URL
@@ -12,9 +12,10 @@ services:
           name: celery-redis
           type: redis
           property: connectionString
+          
   - type: web
-    name: app
-    region: ohio
+    name: soom
+    region: frankfurt
     runtime: python
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn app:app"
@@ -25,9 +26,10 @@ services:
           name: celery-redis
           type: redis
           property: connectionString
+
   - type: web
-    name: flower
-    region: ohio
+    name: soom-monitor
+    region: frankfurt
     plan: free
     runtime: python
     buildCommand: "pip install -r requirements.txt"
@@ -39,9 +41,22 @@ services:
           type: redis
           name: celery-redis
           property: connectionString
+
   - type: redis
     name: celery-redis
-    region: ohio
-    plan: starter # we choose a plan with persistence to ensure tasks are not lost upon restart
+    region: frankfurt
+    plan: free # Change to starter to ensure tasks are not lost upon restart
     maxmemoryPolicy: noeviction # recommended policy for queues
-    ipAllowList: [] # only allow internal connections
+    ipAllowList: # Default: allows all connections
+      - source: 86.18.69.194
+        description: home
+
+databases:
+  - name: postgres
+    region: frankfurt 
+    plan: basic-256mb
+    databaseName: soom
+    user: app_user # Default: generated value based on name
+    ipAllowList: # Default: allows all connections
+      - source: 86.18.69.194
+        description: home
