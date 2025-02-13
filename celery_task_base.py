@@ -20,21 +20,22 @@ class DatabaseTask(Task):
         return result
 
     def save_result(self, task_id, result):
-        if not self._session:
-            # Lazy initialization
-            self._session = scoped_session(sessionmaker(bind=db.engine))  
-         
-        # Find the original task entry
-        task_entry = self._session.query(TaskCache).get(task_id)
+        with current_app.app_context():
+            if not self._session:
+                # Lazy initialization
+                self._session = scoped_session(sessionmaker(bind=db.engine))  
+            
+            # Find the original task entry
+            task_entry = self._session.query(TaskCache).get(task_id)
 
-        if not task_entry:
-            raise NoResultFound(f"Task {task_id} not found, cannot save result")
+            if not task_entry:
+                raise NoResultFound(f"Task {task_id} not found, cannot save result")
 
-        # Update task result and mark as finished
-        task_entry.result = result
-        task_entry.finished_at = db.func.now()
+            # Update task result and mark as finished
+            task_entry.result = result
+            task_entry.finished_at = db.func.now()
 
-        self._session.commit()
+            self._session.commit()
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         # Clean up database session
