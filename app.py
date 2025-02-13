@@ -110,7 +110,7 @@ def run_task(name):
 
             # Add task id to the task_cache table
             new_task = TaskCache({"id": queued_task.id, "task_name": name, "parameters": params})
-            
+
             db.session.add(new_task)
             db.session.commit()
 
@@ -124,8 +124,8 @@ def run_task(name):
     
     
     # Handle exceptions
-    except TypeError as e:
-        return send_message(f"Invalid parameters: {str(e)}", format, "error")
+    # except TypeError as e:
+    #     return send_message(f"Invalid parameters: {str(e)}", format, "error")
     
     # except Exception as e:
     #     return send_message(f"run_task failed: {e}", format, "error")
