@@ -142,6 +142,6 @@ def run_task(name):
 @click.command("celery-worker")
 @with_appcontext
 def celery_worker():
-    celery.worker_main(["worker", "--loglevel=info"])
+    celery.worker_main(["worker", "--loglevel=info", "--concurrency=4"])
 
 app.cli.add_command(celery_worker)
