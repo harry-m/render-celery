@@ -3,6 +3,8 @@ from flask import Flask, render_template, request
 from sqlalchemy import create_engine, Table, Column, String, MetaData, UUID, func, DateTime
 from sqlalchemy.dialects.postgresql import JSONB
 from flask_httpauth import HTTPBasicAuth
+from flask.cli import with_appcontext
+import click
 
 import tasks
 from app_utils import *
@@ -136,3 +138,10 @@ def run_task(name):
     
     # except Exception as e:
     #     return send_message(f"run_task failed: {e}", format, "error")
+
+@click.command("celery-worker")
+@with_appcontext
+def celery_worker():
+    celery.worker_main(["worker", "--loglevel=info"])
+
+app.cli.add_command(celery_worker)

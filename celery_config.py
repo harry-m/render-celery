@@ -11,3 +11,4 @@ celery = Celery('soom', broker=os.getenv("CELERY_BROKER_URL"))
 celery.Task = DatabaseTask
 
 celery.autodiscover_tasks(["tasks"])
+
