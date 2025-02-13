@@ -13,8 +13,10 @@ class TaskCache(db.Model):
     parameters = db.Column(JSONB, nullable=False)
     result = db.Column(db.String, nullable=True)
 
-    def __init__(self, task_id, task_name, parameters):
-        self.id = task_id
-        self.task_name = task_name
-        self.parameters = parameters
-        self.submitted_at = func.now()
+    def __init__(self, **kwargs):
+        if 'id' not in kwargs:
+            raise ValueError("Missing required argument 'id'")
+
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
