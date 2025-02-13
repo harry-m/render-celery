@@ -114,13 +114,13 @@ def run_task(name):
             "task_name": name, 
             "parameters": params
         }
-        
+
         new_task = TaskCache(**params)
 
         db.session.add(new_task)
         db.session.commit()
 
-        return send_message("Your task has been enqueued", format, "info")
+        return send_message(f"Your task {queued_task.id} has been enqueued", format, "info")
     
     else:
         # Call the function with form parameters
