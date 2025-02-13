@@ -31,9 +31,10 @@ users = {
 
 @auth.verify_password
 def verify_password(username, password):
-    """Verify username and password."""
+    # Verify username and password
     if username in users and users[username] == password:
         return username  # Authenticated user
+    
     return None  # Authentication failed
 
 
@@ -65,7 +66,7 @@ def main():
 @auth.login_required
 def run_task(name):
     # Get a format if one was specified, or default to HTML
-    format = request.form.get('format')
+    format = request.form.get('format').lower()
 
     if not format:
         format = "plain"
@@ -75,12 +76,12 @@ def run_task(name):
     
 
     # Check that we have a run or enqueue action
-    action = request.form.get('action')
+    action = request.form.get('action').lower()
 
     if not action:
-        action = "Run"
+        action = "run"
         
-    if action not in ['Run', 'Enqueue']:
+    if action not in ['run', 'enqueue']:
         return send_message("Invalid or missing action", format, "error")
     
 
@@ -104,11 +105,12 @@ def run_task(name):
 
     # Enqueue or run the task, as directed
     try:
-        if action == "Enqueue":
+        if action == "enqueue":
             queued_task = celery.send_task(f"tasks.{name}.{name}", kwargs=params)
 
             # Add task id to the task_cache table
-            new_task = TaskCache(task_id=queued_task.id, task_name=name, parameters=params)
+            new_task = TaskCache({"id": queued_task.id, "task_name": name, "parameters": params})
+            
             db.session.add(new_task)
             db.session.commit()
 
