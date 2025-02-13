@@ -104,23 +104,23 @@ def run_task(name):
 
 
     # Enqueue or run the task, as directed
-    try:
-        if action == "enqueue":
-            queued_task = celery.send_task(f"tasks.{name}.{name}", kwargs=params)
+    # try:
+    if action == "enqueue":
+        queued_task = celery.send_task(f"tasks.{name}.{name}", kwargs=params)
 
-            # Add task id to the task_cache table
-            new_task = TaskCache({"id": queued_task.id, "task_name": name, "parameters": params})
+        # Add task id to the task_cache table
+        new_task = TaskCache({"id": queued_task.id, "task_name": name, "parameters": params})
 
-            db.session.add(new_task)
-            db.session.commit()
+        db.session.add(new_task)
+        db.session.commit()
 
-            return send_message("Your task has been enqueued", format, "info")
+        return send_message("Your task has been enqueued", format, "info")
+    
+    else:
+        # Call the function with form parameters
+        task_result = task_function(**params)
         
-        else:
-            # Call the function with form parameters
-            task_result = task_function(**params)
-            
-            return send_result(task_result, format, 'result.html')
+        return send_result(task_result, format, 'result.html')
     
     
     # Handle exceptions
