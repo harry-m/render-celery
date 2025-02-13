@@ -11,8 +11,9 @@ class DatabaseTask(Task):
         # Override __call__ to execute the task
         result = super().__call__(*args, **kwargs) 
         
-        # Save the result to the database
-        self.save_result(self.request.id, result)
+        # If running inside Celery, save result
+        if self.request.id:
+            self.save_result(self.request.id, result)
 
         return result
 
@@ -23,7 +24,7 @@ class DatabaseTask(Task):
          
         # Find the original task entry
         task_entry = self._session.query(TaskCache).get(task_id)
-        
+
         if not task_entry:
             raise NoResultFound(f"Task {task_id} not found, cannot save result")
 
