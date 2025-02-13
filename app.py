@@ -112,7 +112,8 @@ def run_task(name):
         params = {
             "id": queued_task.id, 
             "task_name": name, 
-            "parameters": params
+            "parameters": params,
+            "submitted_at": func.now()
         }
 
         new_task = TaskCache(**params)
