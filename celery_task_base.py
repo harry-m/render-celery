@@ -3,13 +3,15 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 from database import database as db 
 from models import TaskCache 
+from flask import current_app
 
 class DatabaseTask(Task):
     _session = None  # Lazy-initialized database session
 
     def __call__(self, *args, **kwargs):
         # Override __call__ to execute the task
-        result = super().__call__(*args, **kwargs) 
+        with current_app.app_context():
+            result = super().__call__(*args, **kwargs) 
         
         # If running inside Celery, save result
         if self.request.id:
