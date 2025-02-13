@@ -109,7 +109,13 @@ def run_task(name):
         queued_task = celery.send_task(f"tasks.{name}.{name}", kwargs=params)
 
         # Add task id to the task_cache table
-        new_task = TaskCache({"id": queued_task.id, "task_name": name, "parameters": params})
+        params = {
+            "id": queued_task.id, 
+            "task_name": name, 
+            "parameters": params
+        }
+        
+        new_task = TaskCache(**params)
 
         db.session.add(new_task)
         db.session.commit()
