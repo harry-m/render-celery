@@ -1,9 +1,13 @@
 import os
 from flask import Flask, render_template, request
-from sqlalchemy import create_engine, Table, Column, String, MetaData, UUID, func, DateTime
-from sqlalchemy.dialects.postgresql import JSONB
+
 from flask_httpauth import HTTPBasicAuth
+
 from flask.cli import with_appcontext
+
+# from sqlalchemy import create_engine, Table, Column, String, MetaData, UUID, func, DateTime
+# from sqlalchemy.dialects.postgresql import JSONB
+
 import click
 
 import tasks
@@ -11,7 +15,6 @@ from app_utils import *
 from celery_config import celery
 from database import database as db
 from models import TaskCache
-
 
 
 app = Flask(__name__)
@@ -68,21 +71,25 @@ def main():
 @auth.login_required
 def run_task(name):
     # Get a format if one was specified, or default to HTML
-    format = request.form.get('format').lower()
+    format = request.form.get('format')
 
     if not format:
         format = "plain"
+
+    format = format.lower()
 
     if format not in ['plain', 'html', 'json']:
         return send_message("Invalid format", format, "error")
     
 
     # Check that we have a run or enqueue action
-    action = request.form.get('action').lower()
+    action = request.form.get('action')
 
     if not action:
         action = "run"
         
+    action = action.lower()
+
     if action not in ['run', 'enqueue']:
         return send_message("Invalid or missing action", format, "error")
     
