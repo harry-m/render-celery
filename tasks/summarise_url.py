@@ -4,8 +4,6 @@ from bs4 import BeautifulSoup
 from task_utils import send_to_llm
 from celery_config import celery
 
-base_prompt = "Summarise the following text."
-
 @celery.task
 def summarise_url(url:str, additional_prompt:str=""):
     # Fetch the page at the given URL

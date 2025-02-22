@@ -5,7 +5,7 @@ from celery_config import celery
 
 @celery.task
 def summarise_text(text:str, additional_prompt:str=""):
-    return send_to_llm(text, "" + additional_prompt)
+    return send_to_llm(text, "Summarise the following text. " +  additional_prompt)
 
 def summarise_text_template():
     return """
