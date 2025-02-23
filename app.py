@@ -5,8 +5,6 @@ from flask_httpauth import HTTPBasicAuth
 
 from flask.cli import with_appcontext
 
-from sqlalchemy import func, inspect
-
 import click
 
 import tasks
@@ -107,19 +105,6 @@ def run_task(name):
     try:
         if action == "enqueue":
             queued_task = celery.send_task(f"tasks.{name}.{name}", kwargs=params)
-
-            # Add task id to the task_cache table
-            params = {
-                "id": queued_task.id, 
-                "task_name": name, 
-                "parameters": params,
-                "submitted_at": func.now()
-            }
-
-            new_task = TaskCache(**params)
-
-            db.session.add(new_task)
-            db.session.commit()
 
             return send_message(f"Your task {queued_task.id} has been enqueued", format, "info")
         
