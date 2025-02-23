@@ -14,7 +14,6 @@ import tasks
 from app_utils import *
 from celery_config import celery
 from database import database as db
-from models import TaskCache
 from dotenv import load_dotenv
 
 load_dotenv()
