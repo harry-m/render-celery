@@ -2,7 +2,6 @@ from celery import Task
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 from database import database as db 
-from models import TaskCache 
 from flask import current_app
 
 class DatabaseTask(Task):

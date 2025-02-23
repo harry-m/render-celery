@@ -1,7 +1,7 @@
 from celery_config import celery
 from sqlalchemy.orm import Session
 from database import database as db
-from models import TaskCache
+
 
 @celery.task
 def fetch_result(task_id:str):
