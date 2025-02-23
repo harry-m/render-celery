@@ -54,6 +54,7 @@ services:
          name: redis
          property: connectionString
       
+      
   - type: redis
     name: redis
     region: frankfurt

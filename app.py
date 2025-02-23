@@ -5,8 +5,8 @@ from flask_httpauth import HTTPBasicAuth
 
 from flask.cli import with_appcontext
 
-# from sqlalchemy import create_engine, Table, Column, String, MetaData, UUID, func, DateTime
-# from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import create_engine, Table, Column, String, MetaData, UUID, func, DateTime
+from sqlalchemy.dialects.postgresql import JSONB
 
 import click
 
@@ -15,9 +15,12 @@ from app_utils import *
 from celery_config import celery
 from database import database as db
 from models import TaskCache
+from dotenv import load_dotenv
 
+load_dotenv()
 
 app = Flask(__name__)
+app.debug = True
 app.secret_key = os.getenv('FLASK_SECRET_KEY', "sep897rugb04w57bg40957gb9pergbouerdbv.lxcnv,kdjfbgoeri6yutbgodznyujxikcisgrfbgdsvabolisj")
 auth = HTTPBasicAuth()
 
@@ -32,7 +35,6 @@ db.init_app(app)
 users = {
     "admin": os.getenv('ADMIN_PASSWORD'),
 }
-
 
 @auth.verify_password
 def verify_password(username, password):
