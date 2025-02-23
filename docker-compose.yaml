@@ -16,7 +16,7 @@ services:
 
   soom:
     image: python:3.8
-    command: flask run --debug --host=0.0.0.0
+    command: sh -c "flask init-db && flask run --debug --host=0.0.0.0"
     ports:
       - "8000:5000"
     build:

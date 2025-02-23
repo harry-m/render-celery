@@ -1,6 +1,6 @@
 from celery_config import celery
 from sqlalchemy.orm import Session
-from database import database as db
+from database import TaskCache, database as db
 
 
 @celery.task

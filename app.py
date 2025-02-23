@@ -5,15 +5,14 @@ from flask_httpauth import HTTPBasicAuth
 
 from flask.cli import with_appcontext
 
-from sqlalchemy import create_engine, Table, Column, String, MetaData, UUID, func, DateTime
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import func, inspect
 
 import click
 
 import tasks
 from app_utils import *
 from celery_config import celery
-from database import database as db
+from database import TaskCache, database as db
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -28,6 +27,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize the database with the app
+
 db.init_app(app)
 
 # Simulated user database
@@ -142,3 +142,11 @@ def celery_worker():
     celery.worker_main(["worker", "--loglevel=info", "-B", "--concurrency=4"])
 
 app.cli.add_command(celery_worker)
+
+@click.command("init-db")
+@with_appcontext
+def init_db():
+    db.create_all()
+
+app.cli.add_command(init_db)
+
