@@ -70,25 +70,15 @@ def main():
 @app.route('/task/<name>', methods=['POST'])
 @auth.login_required
 def run_task(name):
-    # Get a format if one was specified, or default to HTML
-    format = request.form.get('format')
-
-    if not format:
-        format = "plain"
-
-    format = format.lower()
+    # Get a format if one was specified, or default to plain
+    format = request.form.get('format').lower() if request.form.get('format') else "plain"
 
     if format not in ['plain', 'html', 'json']:
         return send_message("Invalid format", format, "error")
     
 
-    # Check that we have a run or enqueue action
-    action = request.form.get('action')
-
-    if not action:
-        action = "run"
-        
-    action = action.lower()
+    # Get an action if one was specified, or default to run
+    action = request.form.get('action').lower() if request.form.get('action') else "run"
 
     if action not in ['run', 'enqueue']:
         return send_message("Invalid or missing action", format, "error")
@@ -113,42 +103,41 @@ def run_task(name):
 
 
     # Enqueue or run the task, as directed
-    # try:
-    if action == "enqueue":
-        queued_task = celery.send_task(f"tasks.{name}.{name}", kwargs=params)
+    try:
+        if action == "enqueue":
+            queued_task = celery.send_task(f"tasks.{name}.{name}", kwargs=params)
 
-        # Add task id to the task_cache table
-        params = {
-            "id": queued_task.id, 
-            "task_name": name, 
-            "parameters": params,
-            "submitted_at": func.now()
-        }
+            # Add task id to the task_cache table
+            params = {
+                "id": queued_task.id, 
+                "task_name": name, 
+                "parameters": params,
+                "submitted_at": func.now()
+            }
 
-        new_task = TaskCache(**params)
+            new_task = TaskCache(**params)
 
-        db.session.add(new_task)
-        db.session.commit()
+            db.session.add(new_task)
+            db.session.commit()
 
-        return send_message(f"Your task {queued_task.id} has been enqueued", format, "info")
-    
-    else:
-        # Call the function with form parameters
-        task_result = task_function(**params)
+            return send_message(f"Your task {queued_task.id} has been enqueued", format, "info")
         
-        return send_result(task_result, format, 'result.html')
-    
+        else:
+            # Call the function with form parameters
+            task_result = task_function(**params)
+            
+            return send_result(task_result, format, 'result.html')
     
     # Handle exceptions
-    # except TypeError as e:
-    #     return send_message(f"Invalid parameters: {str(e)}", format, "error")
+    except TypeError as e:
+        return send_message(f"Invalid parameters: {str(e)}", format, "error")
     
-    # except Exception as e:
-    #     return send_message(f"run_task failed: {e}", format, "error")
+    except Exception as e:
+        return send_message(f"run_task failed: {e}", format, "error")
 
 @click.command("celery-worker")
 @with_appcontext
 def celery_worker():
-    celery.worker_main(["worker", "--loglevel=info", "--concurrency=4"])
+    celery.worker_main(["worker", "--loglevel=info", "-B", "--concurrency=4"])
 
 app.cli.add_command(celery_worker)
