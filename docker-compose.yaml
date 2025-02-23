@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  soom-worker:
+    image: python:3.8
+    command: flask celery-worker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql://app_user:yourpassword@postgres/soom
+    depends_on:
+      - redis
+      - postgres
+
+  soom:
+    image: python:3.8
+    command: flask run --debug --host=0.0.0.0
+    ports:
+      - "8000:5000"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql://app_user:yourpassword@postgres/soom
+    depends_on:
+      - redis
+      - postgres
+
+  soom-monitor:
+    image: python:3.8
+    command: celery -A celery_config flower --loglevel info
+    ports:
+      - "5555:5555"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:6.0
+    command: redis-server --maxmemory-policy noeviction
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: soom
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: yourpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
